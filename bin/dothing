@@ -1,0 +1,6 @@
+#!/usr/bin/env ruby
+
+require_relative '../lib/dothing/cli'
+
+dothing_cli = Dothing::Cli.new
+dothing_cli.run
