@@ -2,14 +2,25 @@ require_relative "dothing_job"
 
 module Dothing
   class Agent
-    attr_accessor :agent_id, :thread_id
+    attr_accessor :agent_id,
+                  :thread_id,
+                  :last_pulse,
+                  :current_job,
+                  :local_id,
+                  :killed,
+                  :timed_out
 
     def initialize
       self.agent_id = Random.rand(2_147_483_647)
+      self.last_pulse = Time.current
     end
 
     def start
       self.action_loop
+    end
+
+    def pulse
+      self.last_pulse = Time.current
     end
 
     def next_job
@@ -26,14 +37,19 @@ module Dothing
 
     def action_loop
       while 1
-        next_job = self.next_job
+        puts "action_loop #{thread_id}"
+        self.pulse
 
-        if next_job
+        job = self.next_job
+
+        if job
           begin
-            next_job.action_name.constantize.perform
-            next_job.update_attributes({ :status => DothingJob::STATUS_DONE })
+            self.current_job = job
+            # next_job.update_attributes({ :status => DothingJob::STATUS_KILLME })
+            self.current_job.action_name.constantize.perform
+            self.current_job.update_attributes({ :status => DothingJob::STATUS_DONE })
           rescue Exception => e
-            next_job.update_attributes({ :status => DothingJob::STATUS_FAILED, :message => e.message })
+            self.current_job.update_attributes({ :status => DothingJob::STATUS_FAILED, :message => e.message })
           end
         else
           sleep(5)

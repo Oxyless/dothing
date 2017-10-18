@@ -1,8 +1,9 @@
+require_relative "safe_array"
+
 module Dothing
   class ThreadManager
     def initialize
-      @threads = {}
-      @last_thread_id = 0
+      @threads = Dothing::SafeArray.new
     end
 
     def start_thread(&block)
@@ -10,15 +11,12 @@ module Dothing
         yield
       }
 
-      thread_id = @last_thread_id + 1
-      @threads[thread_id] = new_thread
-      @last_thread_id += 1
-
+      thread_id = @threads.push(new_thread)
       thread_id
     end
 
     def join_all
-      @threads.each do |thread_id, thread|
+      @threads.each do |thread|
         thread.join
       end
     end
@@ -26,6 +24,9 @@ module Dothing
     def exit_thread(thread_id)
       if @threads[thread_id]
         @threads[thread_id].exit()
+        return true
+      else
+        return false
       end
     end
   end

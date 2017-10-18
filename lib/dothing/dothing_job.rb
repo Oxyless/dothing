@@ -9,6 +9,8 @@ class DothingJob < ActiveRecord::Base
   STATUS_FAILED   = 3
   STATUS_DEAD     = 4
   STATUS_KILLME   = 5
+  STATUS_KILLED   = 6
+  STATUS_TIMEOUT  = 7
 
   def self.run_migration
     unless ActiveRecord::Base.connection.tables.include? "dothing_jobs"

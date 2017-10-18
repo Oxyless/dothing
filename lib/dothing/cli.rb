@@ -14,7 +14,8 @@ module Dothing
       ::Rails.application.config.after_initialize do
         DothingJob.run_migration
 
-        1.times do
+        DothingJob.delete_all
+        1000.times do
           DothingJob.create({ :status => DothingJob::STATUS_QUEUED, :queue => :test, :action_name => "JobTest", :action_params => "" })
         end
 
