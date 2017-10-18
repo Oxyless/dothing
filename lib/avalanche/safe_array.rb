@@ -1,4 +1,4 @@
-module Dothing
+module Avalanche
   class SafeArray
     def initialize
       @datas = Array.new

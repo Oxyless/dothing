@@ -1,6 +1,6 @@
-require_relative "dothing_job"
+require_relative "avalanche_job"
 
-module Dothing
+module Avalanche
   class Agent
     attr_accessor :agent_id,
                   :thread_id,
@@ -24,12 +24,12 @@ module Dothing
     end
 
     def next_job
-      next_job = DothingJob.where(:status => DothingJob::STATUS_QUEUED)
+      next_job = AvalancheJob.where(:status => AvalancheJob::STATUS_QUEUED)
                            .where(:queue => :test)
-                           .where("dothing_jobs.agent_id IS NULL").first
+                           .where("avalanche_jobs.agent_id IS NULL").first
 
       if next_job
-        next_job.update_attributes({ :status => DothingJob::STATUS_RUNNING, :agent_id => self.agent_id })
+        next_job.update_attributes({ :status => AvalancheJob::STATUS_RUNNING, :agent_id => self.agent_id })
       end
 
       next_job
@@ -45,11 +45,11 @@ module Dothing
         if job
           begin
             self.current_job = job
-            # next_job.update_attributes({ :status => DothingJob::STATUS_KILLME })
+            # next_job.update_attributes({ :status => AvalancheJob::STATUS_KILLME })
             self.current_job.action_name.constantize.perform
-            self.current_job.update_attributes({ :status => DothingJob::STATUS_DONE })
+            self.current_job.update_attributes({ :status => AvalancheJob::STATUS_DONE })
           rescue Exception => e
-            self.current_job.update_attributes({ :status => DothingJob::STATUS_FAILED, :message => e.message })
+            self.current_job.update_attributes({ :status => AvalancheJob::STATUS_FAILED, :message => e.message })
           end
         else
           sleep(5)

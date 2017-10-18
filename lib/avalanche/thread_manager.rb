@@ -1,9 +1,9 @@
 require_relative "safe_array"
 
-module Dothing
+module Avalanche
   class ThreadManager
     def initialize
-      @threads = Dothing::SafeArray.new
+      @threads = Avalanche::SafeArray.new
     end
 
     def start_thread(&block)

@@ -1,7 +1,7 @@
 require_relative "agent_pool"
-require_relative "dothing_job"
+require_relative "avalanche_job"
 
-module Dothing
+module Avalanche
   class Cli
     def initialize
 
@@ -12,14 +12,14 @@ module Dothing
       ::Rails.application.eager_load!
 
       ::Rails.application.config.after_initialize do
-        DothingJob.run_migration
+        AvalancheJob.run_migration
 
-        DothingJob.delete_all
+        AvalancheJob.delete_all
         1000.times do
-          DothingJob.create({ :status => DothingJob::STATUS_QUEUED, :queue => :test, :action_name => "JobTest", :action_params => "" })
+          AvalancheJob.create({ :status => AvalancheJob::STATUS_QUEUED, :queue => :test, :action_name => "JobTest", :action_params => "" })
         end
 
-        agent_pool = Dothing::AgentPool.new()
+        agent_pool = Avalanche::AgentPool.new()
         agent_pool.start_agents
       end
     end

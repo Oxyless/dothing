@@ -2,11 +2,11 @@ require_relative "thread_manager"
 require_relative "safe_array"
 require_relative "agent"
 
-module Dothing
+module Avalanche
   class AgentPool
     def initialize
-      @thread_manager = Dothing::ThreadManager.new
-      @agents = Dothing::SafeArray.new
+      @thread_manager = Avalanche::ThreadManager.new
+      @agents = Avalanche::SafeArray.new
       @mutex = Mutex.new
 
       @total_agents = 0
@@ -39,7 +39,7 @@ module Dothing
     def start_agent
       puts "start_agent"
 
-      agent = Dothing::Agent.new
+      agent = Avalanche::Agent.new
 
       thread_id = @thread_manager.start_thread do
         agent.start
@@ -85,15 +85,15 @@ module Dothing
       while 1
         puts "kill_loop"
 
-        DothingJob.where(:status => DothingJob::STATUS_KILLME)
+        AvalancheJob.where(:status => AvalancheJob::STATUS_KILLME)
                   .where(:queue => :test)
-                  .where(:"dothing_jobs.agent_id" => @agents.map(&:agent_id))
+                  .where(:"avalanche_jobs.agent_id" => @agents.map(&:agent_id))
                   .each do |dothing_job|
 
           agent_killed = self.kill_agent(dothing_job.agent_id)
 
           if agent_killed
-            dothing_job.update_attribute(:status, DothingJob::STATUS_KILLED)
+            dothing_job.update_attribute(:status, AvalancheJob::STATUS_KILLED)
             agent_killed.killed = true
 
             puts "#{dothing_job.agent_id} killed"
@@ -120,7 +120,7 @@ module Dothing
 
             if agent_killed
               if agent.current_job
-                agent_killed.current_job.update_attribute(:status, DothingJob::STATUS_TIMEOUT)
+                agent_killed.current_job.update_attribute(:status, AvalancheJob::STATUS_TIMEOUT)
                 agent_killed.timed_out = true
 
                 puts "#{agent.agent_id} timed_out"
